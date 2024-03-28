@@ -1,7 +1,7 @@
 import numpy as np
 import cv2 as cv
  
-input_file = 'sprayTest1.mp4'
+input_file = '../vids/sprayTest1.mp4'
 cap = cv.VideoCapture(input_file)
  
 while cap.isOpened():
