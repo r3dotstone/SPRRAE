@@ -1,35 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-OpenCV Motion Detector
-@author: methylDragon
-
-                                   .     .
-                                .  |\-^-/|  .
-                               /| } O.=.O { |\
-                              /´ \ \_ ~ _/ / `\
-                            /´ |  \-/ ~ \-/  | `\
-                            |   |  /\\ //\  |   |
-                             \|\|\/-""-""-\/|/|/
-                                     ______/ /
-                                     '------'
-                       _   _        _  ___
-             _ __  ___| |_| |_ _  _| ||   \ _ _ __ _ __ _ ___ _ _
-            | '  \/ -_)  _| ' \ || | || |) | '_/ _` / _` / _ \ ' \
-            |_|_|_\___|\__|_||_\_, |_||___/|_| \__,_\__, \___/_||_|
-                               |__/                 |___/
-            -------------------------------------------------------
-                           github.com/methylDragon
-
-References/Adapted From:
-https://www.pyimagesearch.com/2015/05/25/basic-motion-detection-and-tracking-with-python-and-opencv/
-
-Description:
-This script runs a motion detector! It detects transient motion in a room
-and said movement is large enough, and recent enough, reports that there is
-motion!
-
-Run the script with a working webcam! You'll see how it works!
-"""
 
 import imutils
 import cv2
@@ -61,8 +30,11 @@ MOVEMENT_DETECTED_PERSISTENCE = 100
 cap = cv2.VideoCapture(5) # Flush the stream
 cap.release()
 
-# os.chdir("../../vids") 
-input_file = 'MilkPour.avi'
+filePath = os.path.realpath(__file__)
+fileDir = os.path.dirname(filePath)
+vidDir = fileDir.replace('SPRRAE\python', 'vids')
+input_file = os.path.join(vidDir,'MilkPour.avi')
+
 cap = cv2.VideoCapture(input_file)
 
 # Init frame variables
@@ -173,3 +145,35 @@ while True:
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 cap.release()
+
+"""
+OpenCV Motion Detector
+@author: methylDragon
+
+                                   .     .
+                                .  |\-^-/|  .
+                               /| } O.=.O { |\
+                              /´ \ \_ ~ _/ / `\
+                            /´ |  \-/ ~ \-/  | `\
+                            |   |  /\\ //\  |   |
+                             \|\|\/-""-""-\/|/|/
+                                     ______/ /
+                                     '------'
+                       _   _        _  ___
+             _ __  ___| |_| |_ _  _| ||   \ _ _ __ _ __ _ ___ _ _
+            | '  \/ -_)  _| ' \ || | || |) | '_/ _` / _` / _ \ ' \
+            |_|_|_\___|\__|_||_\_, |_||___/|_| \__,_\__, \___/_||_|
+                               |__/                 |___/
+            -------------------------------------------------------
+                           github.com/methylDragon
+
+References/Adapted From:
+https://www.pyimagesearch.com/2015/05/25/basic-motion-detection-and-tracking-with-python-and-opencv/
+
+Description:
+This script runs a motion detector! It detects transient motion in a room
+and said movement is large enough, and recent enough, reports that there is
+motion!
+
+Run the script with a working webcam! You'll see how it works!
+"""

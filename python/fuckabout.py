@@ -2,9 +2,11 @@ import numpy as np
 import cv2 as cv
 import os 
 
-# os.chdir("../vids") 
+filePath = os.path.realpath(__file__)
+fileDir = os.path.dirname(filePath)
+vidDir = dir.replace('SPRRAE\python', 'vids')
 
-input_file = 'MilkPour.avi'
+input_file = os.path.join(vidDir,'MilkPour.avi')
 cap = cv.VideoCapture(input_file)
 
 while cap.isOpened():
