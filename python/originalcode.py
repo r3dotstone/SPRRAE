@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import imutils
-import cv2
+import cv2 as cv
 import numpy as np
-import os 
+import os
 
 # =============================================================================
 # USER-SET PARAMETERS
 # =============================================================================
+
+# FILES
+input_file = ""
+output_file = ""
 
 # Number of frames to pass before changing the frame to compare the current
 # frame against
@@ -26,23 +30,26 @@ MOVEMENT_DETECTED_PERSISTENCE = 100
 # =============================================================================
 
 
-# Create capture object
-cap = cv2.VideoCapture(5) # Flush the stream
+# Create capture and writer objects
+cap = cv.VideoCapture(5) # Flush the stream
 cap.release()
 
 filePath = os.path.realpath(__file__)
 fileDir = os.path.dirname(filePath)
 vidDir = fileDir.replace('SPRRAE\python', 'vids')
-input_file = os.path.join(vidDir,'MilkPour.avi')
+input_path = os.path.join(vidDir,input_file)
 
-cap = cv2.VideoCapture(input_file)
+cap = cv.VideoCapture(input_path)
+write = cv.VideoWriter(output_file,
+                         cv2.VideoWriter_fourcc(*'MJPG'),
+                         10, size)
 
 # Init frame variables
 first_frame = None
 next_frame = None
 
 # Init display font and timeout counters
-font = cv2.FONT_HERSHEY_SIMPLEX
+font = cv.FONT_HERSHEY_SIMPLEX
 delay_counter = 0
 movement_persistent_counter = 0
 
@@ -51,7 +58,7 @@ while True:
 
     # Set transient motion detected as false
     transient_movement_flag = False
-    
+
     # Read frame
     ret, frame = cap.read()
     text = "Unoccupied"
@@ -63,13 +70,13 @@ while True:
 
     # Resize and save a greyscale version of the image
     frame = imutils.resize(frame, width = 750)
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
     # Blur it to remove camera noise (reducing false positives)
-    gray = cv2.GaussianBlur(gray, (21, 21), 0)
+    gray_blurred = cv.GaussianBlur(gray, (21, 21), 0)
 
     # If the first frame is nothing, initialise it
-    if first_frame is None: first_frame = gray    
+    if first_frame is None: first_frame = gray_blurred
 
     delay_counter += 1
 
@@ -81,31 +88,31 @@ while True:
         delay_counter = 0
         first_frame = next_frame
 
-        
+
     # Set the next frame to compare (the current frame)
-    next_frame = gray
+    next_frame = gray_blurred
 
     # Compare the two frames, find the difference
-    frame_delta = cv2.absdiff(first_frame, next_frame)
-    thresh = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
+    frame_delta = cv.absdiff(first_frame, next_frame)
+    thresh = cv.threshold(frame_delta, 25, 255, cv.THRESH_BINARY)[1]
 
     # Fill in holes via dilate(), and find contours of the thesholds
-    thresh = cv2.dilate(thresh, None, iterations = 2)
-    cnts, _ = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    thresh = cv.dilate(thresh, None, iterations = 2)
+    cnts, _ = cv.findContours(thresh.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
     # loop over the contours
     for c in cnts:
 
-        # Save the coordinates of all found contours
-        (x, y, w, h) = cv2.boundingRect(c)
-        
+        # # Save the coordinates of all found contours
+        # (x, y, w, h) = cv.boundingRect(c)
+
         # If the contour is too small, ignore it, otherwise, there's transient
         # movement
-        if cv2.contourArea(c) > MIN_SIZE_FOR_MOVEMENT:
+        if cv.contourArea(c) > MIN_SIZE_FOR_MOVEMENT:
             transient_movement_flag = True
-            
-            # Draw a rectangle around big enough movements
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+            # # Draw a rectangle around big enough movements
+            # cv.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     # The moment something moves momentarily, reset the persistent
     # movement timer.
@@ -114,66 +121,34 @@ while True:
         movement_persistent_counter = MOVEMENT_DETECTED_PERSISTENCE
 
     # As long as there was a recent transient movement, say a movement
-    # was detected    
+    # was detected
     if movement_persistent_counter > 0:
         text = "Movement Detected " + str(movement_persistent_counter)
         movement_persistent_counter -= 1
     else:
         text = "No Movement Detected"
 
-    # Print the text on the screen, and display the raw and processed video 
+    # Print the text on the screen, and display the raw and processed video
     # feeds
-    cv2.putText(frame, str(text), (10,35), font, 0.75, (255,255,255), 2, cv2.LINE_AA)
-    
+    cv.putText(frame, str(text), (10,35), font, 0.75, (255,255,255), 2, cv.LINE_AA)
+
     # For if you want to show the individual video frames
-#    cv2.imshow("frame", frame)
-#    cv2.imshow("delta", frame_delta)
-    
+#    cv.imshow("frame", frame)
+#    cv.imshow("delta", frame_delta)
+
     # Convert the frame_delta to color for splicing
-    frame_delta = cv2.cvtColor(frame_delta, cv2.COLOR_GRAY2BGR)
+    frame_delta = cv.cvtColor(frame_delta, cv.COLOR_GRAY2BGR)
 
-    # Splice the two video frames together to make one long horizontal one
-    cv2.imshow("frame", np.hstack((frame_delta, frame)))
-
+    # show frame
+    cv.imshow("frame", frame)
 
     # Interrupt trigger by pressing q to quit the open CV program
-    ch = cv2.waitKey(1)
+    ch = cv.waitKey(1)
     if ch & 0xFF == ord('q'):
         break
 
 # Cleanup when closed
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+cv.waitKey(0)
+cv.destroyAllWindows()
 cap.release()
-
-"""
-OpenCV Motion Detector
-@author: methylDragon
-
-                                   .     .
-                                .  |\-^-/|  .
-                               /| } O.=.O { |\
-                              /´ \ \_ ~ _/ / `\
-                            /´ |  \-/ ~ \-/  | `\
-                            |   |  /\\ //\  |   |
-                             \|\|\/-""-""-\/|/|/
-                                     ______/ /
-                                     '------'
-                       _   _        _  ___
-             _ __  ___| |_| |_ _  _| ||   \ _ _ __ _ __ _ ___ _ _
-            | '  \/ -_)  _| ' \ || | || |) | '_/ _` / _` / _ \ ' \
-            |_|_|_\___|\__|_||_\_, |_||___/|_| \__,_\__, \___/_||_|
-                               |__/                 |___/
-            -------------------------------------------------------
-                           github.com/methylDragon
-
-References/Adapted From:
-https://www.pyimagesearch.com/2015/05/25/basic-motion-detection-and-tracking-with-python-and-opencv/
-
-Description:
-This script runs a motion detector! It detects transient motion in a room
-and said movement is large enough, and recent enough, reports that there is
-motion!
-
-Run the script with a working webcam! You'll see how it works!
-"""
+write.release()
