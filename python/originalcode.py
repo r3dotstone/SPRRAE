@@ -41,6 +41,7 @@ filePath = os.path.realpath(__file__)
 fileDir = os.path.dirname(filePath)
 vidDir = fileDir.replace('SPRRAE\python', 'vids')
 input_path = os.path.join(vidDir,input_file)
+output_path = os.path.join(vidDir,output_file)
 
 cap = cv.VideoCapture(input_path)
 
@@ -50,7 +51,7 @@ if outputFlag:
     frame_height = 450 #int(cap.get(4)) 
     
     size = (frame_width, frame_height) 
-    result = cv.VideoWriter(output_file, cv.VideoWriter_fourcc(*"MPEG"), 30, size)
+    result = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*"MPEG"), 30, size)
 
 # Init frame variables
 first_frame = None
