@@ -33,10 +33,6 @@ MOVEMENT_DETECTED_PERSISTENCE = 100
 # CORE PROGRAM
 # =============================================================================
 
-# Create capture and writer objects
-cap = cv.VideoCapture(5) # Flush the stream
-cap.release()
-
 filePath = os.path.realpath(__file__)
 fileDir = os.path.dirname(filePath)
 vidDir = fileDir.replace('SPRRAE\python', 'vids')
