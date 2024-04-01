@@ -10,7 +10,7 @@ import os
 # =============================================================================
 
 # FILES
-input_file = "stablePaintStreamCUT.avi"
+input_file = "stablePaintStream.avi"
 output_file = "stablePaintStreamOUT.avi"
 outputFlag = True
 displayFlag = False
@@ -36,9 +36,10 @@ MOVEMENT_DETECTED_PERSISTENCE = 100
 
 filePath = os.path.realpath(__file__)
 fileDir = os.path.dirname(filePath)
-vidDir = fileDir.replace('python', 'inputVids')
-input_path = os.path.join(vidDir,input_file)
-output_path = os.path.join(vidDir,output_file)
+inDir = fileDir.replace('python', 'inputVids')
+outDir = fileDir.replace('python', 'outputVids')
+input_path = os.path.join(inDir,input_file)
+output_path = os.path.join(outDir,output_file)
 
 cap = cv.VideoCapture(input_path)
 
@@ -157,13 +158,11 @@ while True:
     # concatenate image Vertically 
     winStack = np.concatenate((winTop, winBot), axis=0)  
 
-    if displayFlag:
-        cv.imshow("look! cool!", winStack)
+    if displayFlag: cv.imshow("look! cool!", winStack)
 
-    if outputFlag: 
-        result.write(winStack)
+    if outputFlag: result.write(winStack)
 
-    print(winStack.shape[1],winStack.shape[0])
+    # print(winStack.shape[1],winStack.shape[0])
 
     # Interrupt trigger by pressing q to quit the open CV program
     ch = cv.waitKey(1)
@@ -174,4 +173,4 @@ while True:
 cv.waitKey(0)
 cv.destroyAllWindows()
 cap.release()
-result.release()
+if outputFlag: result.release()
