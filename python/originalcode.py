@@ -10,17 +10,17 @@ import os
 # =============================================================================
 
 # FILES
-input_file = "stableSprayBottle.avi"
-output_file = "stableSprayBottleOUT.mp4"
-outputFlag = True
-displayFlag = False
+input_file = "stableDroplets.avi"
+output_file = "stableDropletsOUT.mp4"
+outputFlag = False
+displayFlag = True
 
 # mask lower threshold
 MASK_THRESH = 10
 
 # Number of frames to pass before changing the frame to compare the current
 # frame against
-FRAMES_TO_PERSIST = 10
+FRAMES_TO_PERSIST = 2
 
 # Minimum boxed area for a detected motion to count as actual motion
 # Use to filter out noise or small objects
@@ -60,6 +60,8 @@ font = cv.FONT_HERSHEY_SIMPLEX
 delay_counter = 0
 movement_persistent_counter = 0
 
+firstLoop = True
+
 # LOOP!
 while True:
 
@@ -70,9 +72,11 @@ while True:
     ret, frame = cap.read()
     text = "Unoccupied"
 
-    # If there's an error in capturing
+    if not(ret) and firstLoop:
+        print("CAPTURE ERROR")
+        break
     if not ret:
-        print("CAPTURE ERROR or SUCCESS!")
+        print("something cool probably happend")
         break
 
     # Resize and save a greyscale version of the image
@@ -104,8 +108,9 @@ while True:
     thresh = cv.threshold(frame_delta, 25, 255, cv.THRESH_BINARY)[1]
 
     # Fill in holes via dilate(), and find contours of the thesholds
-    thresh = cv.dilate(thresh, None, iterations = 2)
-    cnts, _ = cv.findContours(thresh.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    dil = cv.dilate(thresh, None, iterations = 20)
+    erode = cv.erode(dil,None, iterations = 20)
+    cnts, _ = cv.findContours(erode.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
     # loop over the contours
     for c in cnts:
@@ -137,14 +142,14 @@ while True:
 
     # Print the text on the screen, and display the raw and processed video
     # feeds
-    cv.putText(frame, str(text), (10,35), font, 0.75, (255,255,255), 2, cv.LINE_AA)
+    # cv.putText(frame, str(text), (10,35), font, 0.75, (255,255,255), 2, cv.LINE_AA)
 
     # For if you want to show the individual video frames
 #    cv.imshow("frame", frame)
 #    cv.imshow("delta", frame_delta)
 
     # threshold mask
-    _,mask = cv.threshold(frame_delta,MASK_THRESH,255,cv.THRESH_BINARY)
+    _,mask = cv.threshold(erode,MASK_THRESH,255,cv.THRESH_BINARY)
 
     # Convert to color for splicing
     gray_blurred = cv.cvtColor(gray_blurred, cv.COLOR_GRAY2BGR)
@@ -168,6 +173,9 @@ while True:
     ch = cv.waitKey(1)
     if ch & 0xFF == ord('q'):
         break
+
+    if firstLoop: firstLoop = False
+
 
 # Cleanup when closed
 cv.waitKey(0)
