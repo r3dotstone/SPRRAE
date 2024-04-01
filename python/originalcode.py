@@ -13,6 +13,7 @@ import os
 input_file = "stablePaintStreamCUT.avi"
 output_file = "stablePaintStreamOUT.avi"
 outputFlag = True
+displayFlag = False
 
 # mask lower threshold
 MASK_THRESH = 20
@@ -35,7 +36,7 @@ MOVEMENT_DETECTED_PERSISTENCE = 100
 
 filePath = os.path.realpath(__file__)
 fileDir = os.path.dirname(filePath)
-vidDir = fileDir.replace('SPRRAE\python', 'vids')
+vidDir = fileDir.replace('python', 'inputVids')
 input_path = os.path.join(vidDir,input_file)
 output_path = os.path.join(vidDir,output_file)
 
@@ -156,7 +157,8 @@ while True:
     # concatenate image Vertically 
     winStack = np.concatenate((winTop, winBot), axis=0)  
 
-    cv.imshow("look! cool!", winStack)
+    if displayFlag:
+        cv.imshow("look! cool!", winStack)
 
     if outputFlag: 
         result.write(winStack)
