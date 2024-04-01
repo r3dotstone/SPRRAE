@@ -10,13 +10,13 @@ import os
 # =============================================================================
 
 # FILES
-input_file = "stablePaintStream.avi"
-output_file = "stablePaintStreamOUT.avi"
+input_file = "stableSprayBottle.avi"
+output_file = "stableSprayBottleOUT.mp4"
 outputFlag = True
 displayFlag = False
 
 # mask lower threshold
-MASK_THRESH = 20
+MASK_THRESH = 10
 
 # Number of frames to pass before changing the frame to compare the current
 # frame against
@@ -49,7 +49,7 @@ if outputFlag:
     frame_height = 450 #int(cap.get(4)) 
     
     size = (frame_width, frame_height) 
-    result = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*"MPEG"), 30, size)
+    result = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*"mp4v"), 30, size)
 
 # Init frame variables
 first_frame = None
@@ -72,7 +72,7 @@ while True:
 
     # If there's an error in capturing
     if not ret:
-        print("CAPTURE ERROR")
+        print("CAPTURE ERROR or SUCCESS!")
         break
 
     # Resize and save a greyscale version of the image
