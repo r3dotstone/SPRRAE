@@ -10,7 +10,7 @@ import os
 # =============================================================================
 
 # FILES
-input_file = "stablePaintStream.MOV"
+input_file = "stablePaintStreamCUT.avi"
 output_file = "stablePaintStreamOUT.avi"
 outputFlag = True
 
@@ -45,16 +45,12 @@ input_path = os.path.join(vidDir,input_file)
 cap = cv.VideoCapture(input_path)
 
 if outputFlag:
-        
-    # We need to set resolutions. 
-    # so, convert them from float to integer. 
-    frame_width = int(cap.get(3)) 
-    frame_height = int(cap.get(4)) 
+
+    frame_width = 800 #int(cap.get(3)) 
+    frame_height = 450 #int(cap.get(4)) 
     
     size = (frame_width, frame_height) 
-    result = cv.VideoWriter(output_file,
-                            cv.VideoWriter_fourcc(*'MJPG'),
-                            10, size)
+    result = cv.VideoWriter(output_file, cv.VideoWriter_fourcc(*"MPEG"), 30, size)
 
 # Init frame variables
 first_frame = None
@@ -164,8 +160,11 @@ while True:
     winStack = np.concatenate((winTop, winBot), axis=0)  
 
     cv.imshow("look! cool!", winStack)
+
     if outputFlag: 
         result.write(winStack)
+
+    print(winStack.shape[1],winStack.shape[0])
 
     # Interrupt trigger by pressing q to quit the open CV program
     ch = cv.waitKey(1)
