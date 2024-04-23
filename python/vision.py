@@ -4,6 +4,7 @@ import imutils
 import cv2 as cv
 import numpy as np
 import os
+from regressionFromMask import maskReg
 
 # =============================================================================
 # USER-SET PARAMETERS
@@ -54,10 +55,10 @@ cap = cv.VideoCapture(input_path)
 
 if outputFlag:
 
-    frame_width = 800 #int(cap.get(3)) 
-    frame_height = 450 #int(cap.get(4)) 
-    
-    size = (frame_width, frame_height) 
+    frame_width = 800 #int(cap.get(3))
+    frame_height = 450 #int(cap.get(4))
+
+    size = (frame_width, frame_height)
     result = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*"mp4v"), 30, size)
 
 # Init frame variables
@@ -159,6 +160,13 @@ while True:
 
     # threshold mask
     _,mask = cv.threshold(erode,MASK_THRESH,255,cv.THRESH_BINARY)
+    pointsX, pointsY, lineX, lineY = maskReg(mask)
+    lineStart = (lineX[0],lineY[0])
+    lineEnd = (lineX[1],line[1])
+    color = (0, 255, 0)
+    thickness = 3
+    frame = cv.line(frame, lineStart, lineEnd, color, thickness)
+
 
     # np.save("regressionTestArray",mask)
 
@@ -168,11 +176,11 @@ while True:
     mask = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
 
     # show frame
-    # concatenate image Horizontally 
-    winTop = np.concatenate((frame, gray_blurred), axis=1) 
-    winBot = np.concatenate((frame_delta, mask), axis=1) 
-    # concatenate image Vertically 
-    winStack = np.concatenate((winTop, winBot), axis=0)  
+    # concatenate image Horizontally
+    winTop = np.concatenate((frame, gray_blurred), axis=1)
+    winBot = np.concatenate((frame_delta, mask), axis=1)
+    # concatenate image Vertically
+    winStack = np.concatenate((winTop, winBot), axis=0)
 
     if displayFlag: cv.imshow("look! cool!", winStack)
 
