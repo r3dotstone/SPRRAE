@@ -160,12 +160,15 @@ while True:
 
     # threshold mask
     _,mask = cv.threshold(erode,MASK_THRESH,255,cv.THRESH_BINARY)
-    pointsX, pointsY, lineX, lineY = maskReg(mask)
-    lineStart = (lineX[0],lineY[0])
-    lineEnd = (lineX[1],line[1])
-    color = (0, 255, 0)
-    thickness = 3
-    frame = cv.line(frame, lineStart, lineEnd, color, thickness)
+    if not(firstLoop): 
+        pointsX, pointsY, lineX, lineY = maskReg(mask)
+        lineStart = (int(lineX[0]),int(lineY[0]))
+        print(lineStart)
+        lineEnd = (int(lineX[1]),int(lineY[1]))
+        print(lineEnd)
+        color = (0, 255, 0)
+        thickness = 3
+        frame = cv.line(frame, lineStart, lineEnd, color, thickness)
 
 
     # np.save("regressionTestArray",mask)
