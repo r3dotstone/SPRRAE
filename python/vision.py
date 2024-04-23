@@ -10,13 +10,13 @@ import os
 # =============================================================================
 
 # FILES
-input_file = "DroneTop.avi"
-output_file = "DroneTopOUT.mp4"
+input_file = "angleTest.avi"
+output_file = "angleTestOUT.mp4"
 outputFlag = False
 displayFlag = True
 
 # movement lower threshold
-MOV_THRESH = 12
+MOV_THRESH = 4
 
 # number of dilation/erosion iterations
 DIL_ERODE_ITERS = 0
@@ -89,7 +89,7 @@ while True:
         break
 
     # Resize and save a greyscale version of the image
-    frame = imutils.resize(frame, width = 400)
+    frame = imutils.resize(frame, width = 200)
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
     # Blur it to remove camera noise (reducing false positives)
