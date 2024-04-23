@@ -10,21 +10,30 @@ import os
 # =============================================================================
 
 # FILES
-input_file = "stableDroplets.avi"
-output_file = "stableDropletsOUT.mp4"
+input_file = "DroneTop.avi"
+output_file = "DroneTopOUT.mp4"
 outputFlag = False
 displayFlag = True
 
-# mask lower threshold
-MASK_THRESH = 10
+# movement lower threshold
+MOV_THRESH = 12
+
+# number of dilation/erosion iterations
+DIL_ERODE_ITERS = 0
+
+# mask lower threshold (change MOV_THRESH instead)
+MASK_THRESH = 0
+
+# Gaussian blue kernal size
+BLUR_SIZE = 7
 
 # Number of frames to pass before changing the frame to compare the current
 # frame against
-FRAMES_TO_PERSIST = 2
+FRAMES_TO_PERSIST = 1
 
 # Minimum boxed area for a detected motion to count as actual motion
 # Use to filter out noise or small objects
-MIN_SIZE_FOR_MOVEMENT = 2000
+MIN_SIZE_FOR_MOVEMENT = 1000
 
 # Minimum length of time where no motion is detected it should take
 #(in program cycles) for the program to declare that there is no movement
@@ -84,7 +93,7 @@ while True:
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
     # Blur it to remove camera noise (reducing false positives)
-    gray_blurred = cv.GaussianBlur(gray, (21, 21), 0)
+    gray_blurred = cv.GaussianBlur(gray, (BLUR_SIZE, BLUR_SIZE), 0)
 
     # If the first frame is nothing, initialise it
     if first_frame is None: first_frame = gray_blurred
@@ -105,11 +114,11 @@ while True:
 
     # Compare the two frames, find the difference
     frame_delta = cv.absdiff(first_frame, next_frame)
-    thresh = cv.threshold(frame_delta, 25, 255, cv.THRESH_BINARY)[1]
+    thresh = cv.threshold(frame_delta, MOV_THRESH, 255, cv.THRESH_BINARY)[1]
 
     # Fill in holes via dilate(), and find contours of the thesholds
-    dil = cv.dilate(thresh, None, iterations = 20)
-    erode = cv.erode(dil,None, iterations = 20)
+    dil = cv.dilate(thresh, None, iterations = DIL_ERODE_ITERS)
+    erode = cv.erode(dil,None, iterations = DIL_ERODE_ITERS)
     cnts, _ = cv.findContours(erode.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
     # loop over the contours
