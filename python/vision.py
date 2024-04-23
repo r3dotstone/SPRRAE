@@ -160,6 +160,8 @@ while True:
     # threshold mask
     _,mask = cv.threshold(erode,MASK_THRESH,255,cv.THRESH_BINARY)
 
+    # np.save("regressionTestArray",mask)
+
     # Convert to color for splicing
     gray_blurred = cv.cvtColor(gray_blurred, cv.COLOR_GRAY2BGR)
     frame_delta = cv.cvtColor(frame_delta, cv.COLOR_GRAY2BGR)
