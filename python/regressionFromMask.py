@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def maskReg(mask):
-    indices = np.where(mask == 255)
+    indices = np.where(mask == 255) # stuff goes wrong if this returns nothing
     # print("INDICES: ",indices)
     
     # if indices == (np.array(None,dtype=np.int64), np.array(None,dtype=np.int64)): # checks if empty/no points were found
@@ -20,6 +20,9 @@ def maskReg(mask):
     G = np.vstack((x,np.ones(x.shape))).T
     mb, _, _, _ = np.linalg.lstsq(G,y)
 
+    # xPred = x
+    # if xPred.any() == None:
+    #     pass
     xPred = np.array([np.min(x),np.max(x)])
     GPred = np.vstack((xPred,np.ones(xPred.shape))).T
     yPred = np.dot(GPred,mb)

@@ -55,8 +55,8 @@ cap = cv.VideoCapture(input_path)
 
 if outputFlag:
 
-    frame_width = 800 #int(cap.get(3))
-    frame_height = 450 #int(cap.get(4))
+    frame_width = 2*200 #int(cap.get(3))
+    frame_height = 2*355 #int(cap.get(4))
 
     size = (frame_width, frame_height)
     result = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*"mp4v"), 30, size)
@@ -91,6 +91,7 @@ while True:
 
     # Resize and save a greyscale version of the image
     frame = imutils.resize(frame, width = 200)
+    # print("size: ",frame.shape)
     gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
     # Blur it to remove camera noise (reducing false positives)
@@ -160,15 +161,15 @@ while True:
 
     # threshold mask
     _,mask = cv.threshold(erode,MASK_THRESH,255,cv.THRESH_BINARY)
-    if not(firstLoop): 
+    if not(firstLoop) and transient_movement_flag: 
         pointsX, pointsY, lineX, lineY = maskReg(mask)
         lineStart = (int(lineX[0]),int(lineY[0]))
-        print(lineStart)
         lineEnd = (int(lineX[1]),int(lineY[1]))
-        print(lineEnd)
         color = (0, 255, 0)
         thickness = 3
         frame = cv.line(frame, lineStart, lineEnd, color, thickness)
+        text = np.rad2deg(np.arctan((lineY[1]-lineY[0])/(lineX[1]-lineX[0])))
+        cv.putText(frame, str(text), (10,35), font, 0.75, (255,255,255), 2, cv.LINE_AA)
 
 
     # np.save("regressionTestArray",mask)
@@ -204,3 +205,4 @@ cv.waitKey(0)
 cv.destroyAllWindows()
 cap.release()
 if outputFlag: result.release()
+print("All done!")
