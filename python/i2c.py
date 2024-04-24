@@ -1,27 +1,51 @@
- from smbus import SMBus
+from smbus import SMBus
+import gpiod
 
 addr = 0x8 # bus address
 bus = SMBus(1) # indicates /dev/ic2-1
 
-numb = 1
+calFlagPin = 17  # GPIO 17, physical pin 11
+chip = gpiod.Chip('gpiochip4')
+calFlagLine = chip.get_line(calFlagPin)
+calFlagLine.request(consumer="Arduino", type=gpiod.LINE_REQ_DIR_OUT)
+calFlagLine.set_value(0)
 
-print ("Enter 1 for ON or 0 for OFF")
-while numb == 1:
+calibrate = False
+while True:
+	
+	mode = input("What mode would you like to run?\n[cal] [step] [hold] [per] [abs]\n>>>>    ")
+	
+	if mode == "cal":
+		print("Entering calibration mode")
+		calFlagLine.set_value(1)
+		calLoop = True
+		while calLoop:
+			calIn = input("Enter relative angle or [exit]: ")
+			if calIn == "exit": 
+				calLoop == False
+				break
+			else: print(calIn)
+			# bus.write_byte(addr,int(calIn))
+		print("Exitting calibration mode...")
+		calFlagLine.set_value(0)
 
-	ledstate = input(">>>>   ")
+	elif mode == "abs":
+		print("Entering absolute position mode")
+		absLoop = True
+		while absLoop:
+			absIn = input("Enter absolute angle in degrees or [exit]: ")
+			if absIn == "exit": 
+				absLoop = False
+				break
+			else: print(int(absIn))
+	#		bus.write_byte(addr,int(angle))
+		print("Exitting absolute position mode...")
 
-	if ledstate == "1":
-		bus.write_byte(addr, 0x1) # switch it on
-	elif ledstate == "0":
-		bus.write_byte(addr, 0x0) # switch it on
 	else:
-		numb = 0
+		mode = input("invalid input/nWhat mode would you like to run?\n[cal] [step] [hold] [per] [abs]\n>>>>    ")
 
-#  Raspberry Pi Master for Arduino Slave
-#  i2c_master_pi.py
-#  Connects to Arduino via I2C
+calFlagLine.release()
 
-#  DroneBot Workshop 2019
 #  https://dronebotworkshop.com
 #  https://dronebotworkshop.com/i2c-arduino-raspberry-pi/
 #  https://roboticsbackend.com/raspberry-pi-master-arduino-slave-i2c-communication-with-wiringpi/
