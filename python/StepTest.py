@@ -1,6 +1,6 @@
 import numpy as np
 import time
-from controller import Controller
+from theController import Controller
 
 ### INPUT: position of stream from vision 
 ### OUTPUT: demand for position to i2c
