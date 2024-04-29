@@ -25,7 +25,7 @@ while True:
 				calLoop == False
 				break
 			else: print(calIn)
-			# bus.write_byte(addr,int(calIn))
+			bus.write_byte(addr,int(calIn))
 		print("Exitting calibration mode...")
 		calFlagLine.set_value(0)
 
@@ -38,11 +38,11 @@ while True:
 				absLoop = False
 				break
 			else: print(int(absIn))
-	#		bus.write_byte(addr,int(angle))
+			bus.write_byte(addr,int(absIn))
 		print("Exitting absolute position mode...")
 
 	else:
-		mode = input("invalid input/nWhat mode would you like to run?\n[cal] [step] [hold] [per] [abs]\n>>>>    ")
+		mode = input("invalid input\nWhat mode would you like to run?\n[cal] [step] [hold] [per] [abs]\n>>>>    ")
 
 calFlagLine.release()
 

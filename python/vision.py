@@ -4,7 +4,7 @@ import imutils
 import cv2 as cv
 import numpy as np
 import os
-from regressionFromMask import maskReg
+from regressionFromMask import maskPolyReg
 
 # =============================================================================
 # USER-SET PARAMETERS
@@ -162,14 +162,20 @@ while True:
     # threshold mask
     _,mask = cv.threshold(erode,MASK_THRESH,255,cv.THRESH_BINARY)
     if not(firstLoop) and transient_movement_flag: 
-        pointsX, pointsY, lineX, lineY = maskReg(mask)
-        lineStart = (int(lineX[0]),int(lineY[0]))
-        lineEnd = (int(lineX[1]),int(lineY[1]))
-        color = (0, 255, 0)
-        thickness = 3
-        frame = cv.line(frame, lineStart, lineEnd, color, thickness)
-        text = np.rad2deg(np.arctan((lineY[1]-lineY[0])/(lineX[1]-lineX[0])))
-        cv.putText(frame, str(text), (10,35), font, 0.75, (255,255,255), 2, cv.LINE_AA)
+        pointsX, pointsY, xPred, yPred = maskPolyReg(mask)
+        # lineStart = (int(lineX[0]),int(lineY[0]))
+        # lineEnd = (int(lineX[1]),int(lineY[1]))
+        # color = (0, 255, 0)
+        # thickness = 3
+        # frame = cv.line(frame, lineStart, lineEnd, color, thickness)
+        # text = np.rad2deg(np.arctan((lineY[1]-lineY[0])/(lineX[1]-lineX[0])))
+        # cv.putText(frame, str(text), (10,35), font, 0.75, (255,255,255), 2, cv.LINE_AA)
+        for i in np.linspace(0,len(xPred)-1,25,dtype=int):
+            # j = 20 % i
+            circleCoord = (int(xPred[i]),int(yPred[i]))
+            print(circleCoord)
+            # if j == 0: 
+            frame = cv.circle(frame, circleCoord, radius=2, color=(0, 0, 255), thickness=-1)
 
 
     # np.save("regressionTestArray",mask)
