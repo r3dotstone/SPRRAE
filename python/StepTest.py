@@ -19,8 +19,9 @@ while True:
     dt = np.floor(timeNow - timeOld)
     elapsedTime = np.floor(beginTime - start)
     timeOld = timeNow
-    dirCheck = elapsedTime % period
-    refAngle += (rotVelocity * dt * direction)
-    if elapsedTime % period == 0:
-        direction = -1*direction
-    print("angle ", refAngle, "elapsed time", elapsedTime,"dt ",dt)
+
+    if elapsedTime < 5:
+        refAngle = 20
+    else:
+        refAngle = 70
+    print("angle ", refAngle, "elapsed time", elapsedTime)

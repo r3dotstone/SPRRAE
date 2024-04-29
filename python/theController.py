@@ -1,7 +1,7 @@
 import numpy as np
 import time
 
-class Controller:
+class theControllerClass:
     def __init__(self):
         self.kp_omega = 0.01
         self.ki_omega = 0.001
@@ -32,5 +32,9 @@ class Controller:
          if elapsedTime % period == 0:
              direction = -1*direction
 
-    def stepTests(self):
-        stepvel=0
+    def stepTests(self, elapsedTime):
+        if elapsedTime < 5:
+            refAngle = 20
+        else:
+            refAngle = 70
+        print(refAngle)
