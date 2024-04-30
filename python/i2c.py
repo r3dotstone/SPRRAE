@@ -5,10 +5,21 @@ addr = 0x8 # bus address
 bus = SMBus(1) # indicates /dev/ic2-1
 
 calFlagPin = 17  # GPIO 17, physical pin 11
-chip = gpiod.Chip('gpiochip4')
+chip = gpiod.chip('gpiochip4')
 calFlagLine = chip.get_line(calFlagPin)
-calFlagLine.request(consumer="Arduino", type=gpiod.LINE_REQ_DIR_OUT)
-calFlagLine.set_value(0)
+calFlagLine.request()
+
+config = gpiod.line_request(calFlagLine,gpiod.line_request.DIRECTION_OUTPUT,0)
+config.consumer = "Arduino"
+# config.request_type = gpiod.line_request.DIRECTION_OUTPUT
+# calFlagLine.set_value(0)
+
+# chip = gpiod.chip(LED_CHIP)
+# led = chip.get_line(LED_LINE_OFFSET)
+
+# config = gpiod.line_request()
+# config.consumer = "Blink"
+# config.request_type = gpiod.line_request.DIRECTION_OUTPUT
 
 calibrate = False
 while True:

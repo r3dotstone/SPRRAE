@@ -23,6 +23,7 @@ calFlagLine.request(consumer="Arduino", type=gpiod.LINE_REQ_DIR_OUT)
 calFlagLine.set_value(0)
 
 calibrate = False
+firstloop = True
 
 while True:
 	
@@ -68,6 +69,9 @@ while True:
     
     controller.control()
     controller.ref()
+
+    if firstLoop: firstLoop = False
+
 
 calFlagLine.release()
 
