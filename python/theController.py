@@ -7,9 +7,9 @@ class theControllerClass:
         self.ki_omega = 0.001
         self.dt = 0 #[milliseconds]
     
-    def control(self, elapsedTime, refAngle):
+    def control(self, elapsedTime, refAngle, measuredAngle):
         omega = 0.1 #[deg/s]
-        measuredAngle = 0 #need to figure out how we're getting this from the video
+        #measuredAngle = 0 #need to figure out how we're getting this from the video
         ei_omega = 0
 
         if (elapsedTime % 3) == 0:
