@@ -4,77 +4,112 @@
 #importing and setting up classes
 import numpy as np
 import time
-import gpiod
+import cv2 as cv
+# import gpiod
 from smbus import SMBus
 from theController import theControllerClass
+from waterDetectorClass import waterDetector
 
+# controller setup
 controller = theControllerClass()
 start = time.time()
 timeOld = time.time()
 
-#i2c set up
+# water detector setup
+wd = waterDetector()
+
+# i2c set up
 addr = 0x8 # bus address
 bus = SMBus(1) # indicates /dev/ic2-1
 
-calFlagPin = 17  # GPIO 17, physical pin 11
-chip = gpiod.Chip('gpiochip4')
-calFlagLine = chip.get_line(calFlagPin)
-calFlagLine.request(consumer="Arduino", type=gpiod.LINE_REQ_DIR_OUT)
-calFlagLine.set_value(0)
+firstLoop = True
 
-calibrate = False
-firstloop = True
+cap = cv.VideoCapture(0)
 
 while True:
-	
-    #Time set ups
-    timeNow = time.time()
-    beginTime = time.time()
-    dt = np.floor(timeNow - timeOld)
-    elapsedTime = np.floor(beginTime - start)
-    timeOld = timeNow
-
-    #i2c modes
-    mode = input("What mode would you like to run?\n[cal] [step] [hold] [per] [abs]\n>>>>    ")
-	
-    if mode == "cal":
-        print("Entering calibration mode")
-        calFlagLine.set_value(1)
-        calLoop = True
-        while calLoop:
-            calIn = input("Enter relative angle or [exit]: ")
-            if calIn == "exit": 
-                calLoop == False
-                break
-            else: print(calIn)
-			# bus.write_byte(addr,int(calIn))
-        print("Exitting calibration mode...")
-        calFlagLine.set_value(0)
-
-    elif mode == "abs":
-        print("Entering absolute position mode")
-        absLoop = True
-        while absLoop:
-            absIn = input("Enter absolute angle in degrees or [exit]: ")
-            if absIn == "exit": 
-                absLoop = False
-                break
-            else: print(int(absIn))
-	#		bus.write_byte(addr,int(angle))
-        print("Exitting absolute position mode...")
-
-    else:
-        mode = input("invalid input/nWhat mode would you like to run?\n[cal] [step] [hold] [per] [abs]\n>>>>    ")
-    
-    
-    controller.control()
-    controller.ref()
-
     if firstLoop: firstLoop = False
+	
+    # #Time set ups
+    # timeNow = time.time()
+    # beginTime = time.time()
+    # dt = np.floor(timeNow - timeOld)
+    # elapsedTime = np.floor(beginTime - start)
+    # timeOld = timeNow
+    
+    ret, frame = cap.read()
+    angle, frame, gray_blurred, frame_delta, mask = wd.loop(firstLoop,frame)
+
+    # test = vision(firstLoop)
+    # print(angle)
+
+    # controller.control()
+    # controller.ref()
+
+    cv.imshow("look! cool!", frame)
+    ch = cv.waitKey(1)
+    if ch & 0xFF == ord('q'):
+        break
+
+# clean up
+cv.waitKey(0)
+cv.destroyAllWindows()
+cap.release()
 
 
-calFlagLine.release()
+
+
+
+
+
+
+
+
+
+
+
+
+### RESOURCES AND DEPRECIATED CODE ###
 
 #  https://dronebotworkshop.com
 #  https://dronebotworkshop.com/i2c-arduino-raspberry-pi/
 #  https://roboticsbackend.com/raspberry-pi-master-arduino-slave-i2c-communication-with-wiringpi/
+  
+  
+# calFlagPin = 17  # GPIO 17, physical pin 11
+# chip = gpiod.Chip('gpiochip4')
+# calFlagLine = chip.get_line(calFlagPin)
+# calFlagLine.request(consumer="Arduino", type=gpiod.LINE_REQ_DIR_OUT)
+# calFlagLine.set_value(0)
+  
+    # #i2c modes
+    # mode = input("What mode would you like to run?\n[cal] [step] [hold] [per] [abs]\n>>>>    ")
+  
+    # if mode == "cal":
+    #     print("Entering calibration mode")
+    #     calFlagLine.set_value(1)
+    #     calLoop = True
+    #     while calLoop:
+    #         calIn = input("Enter relative angle or [exit]: ")
+    #         if calIn == "exit": 
+    #             calLoop == False
+    #             break
+    #         else: print(calIn)
+	# 		# bus.write_byte(addr,int(calIn))
+    #     print("Exitting calibration mode...")
+    #     calFlagLine.set_value(0)
+
+    # elif mode == "abs":
+    #     print("Entering absolute position mode")
+    #     absLoop = True
+    #     while absLoop:
+    #         absIn = input("Enter absolute angle in degrees or [exit]: ")
+    #         if absIn == "exit": 
+    #             absLoop = False
+    #             break
+    #         else: print(int(absIn))
+	# #		bus.write_byte(addr,int(angle))
+    #     print("Exitting absolute position mode...")
+
+    # else:
+    #     mode = input("invalid input/nWhat mode would you like to run?\n[cal] [step] [hold] [per] [abs]\n>>>>    ")
+# calFlagLine.release()
