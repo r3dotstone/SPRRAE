@@ -29,18 +29,18 @@ cap = cv.VideoCapture(0)
 while True:
     if firstLoop: firstLoop = False
 	
-    # #Time set ups
-    # timeNow = time.time()
-    # beginTime = time.time()
-    # dt = np.floor(timeNow - timeOld)
-    # elapsedTime = np.floor(beginTime - start)
-    # timeOld = timeNow
+    #Time set ups
+    timeNow = time.time()
+    beginTime = time.time()
+    dt = np.floor(timeNow - timeOld)
+    elapsedTime = np.floor(beginTime - start)
+    timeOld = timeNow
     
     ret, frame = cap.read()
     angle, frame, gray_blurred, frame_delta, mask = wd.loop(firstLoop,frame)
 
     # test = vision(firstLoop)
-    # print(angle)
+    print("ANGLE: ",angle)
 
     # controller.control()
     # controller.ref()

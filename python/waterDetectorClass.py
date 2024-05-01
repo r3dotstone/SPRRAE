@@ -106,7 +106,6 @@ class waterDetector:
             for i in np.linspace(0,len(xPred)-1,25,dtype=int):
                 # j = 20 % i
                 circleCoord = (xPred[i],yPred[i])
-                print(circleCoord)
                 # if j == 0: 
                 frame = cv.circle(frame, circleCoord, radius=2, color=(0, 0, 255), thickness=-1)
             lineStart = (xPred[0],yPred[0])
