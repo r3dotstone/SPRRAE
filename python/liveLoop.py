@@ -41,14 +41,17 @@ addr = 0x8 # bus address
 # instantiate capture object
 if inputFlag: cap = cv.VideoCapture(0)
 else: cap = cv.VideoCapture(input_path)
+ret, test_frame = cap.read()
+if not ret:
+    print("Failed to get frame from camera.")
+    cap.release()
+    exit()
 
-if outputFlag:
+actual_frame_height, actual_frame_width = test_frame.shape[:2]
+frame_height = actual_frame_height + 150  # Adding space for text
+size = (actual_frame_width, actual_frame_height)
 
-    frame_width = 2*200 #int(cap.get(3))
-    frame_height = 2*355 #int(cap.get(4))
-
-    size = (frame_width, frame_height)
-    result = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*"mp4v"), 30, size)
+if outputFlag: result = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*"mp4v"), 30, size)
 
 # pre-loop assignments
 firstLoop = True
@@ -67,6 +70,7 @@ while True:
     
     ret, frame = cap.read()
     
+
     measAngle, frame, gray_blurred, frame_delta, mask = wd.loop(firstLoop,frame)
     if measAngle == None: measAngle = measAngleLast
     measAngleLast = measAngle
@@ -75,12 +79,26 @@ while True:
 
     ctrlAngle = controller.control(elapsedTime, refAngle, measAngle)
 
-    print("MEASURED ANGLE: ",measAngle)
-    print("REFERENCE ANGLE: ",refAngle)
-    print("CONTROL ANGLE: ",ctrlAngle)
-    print("ELAPSED TIME: ", elapsedTime)
+    # print("MEASURED ANGLE: ",measAngle)
+    # print("REFERENCE ANGLE: ",refAngle)
+    # print("CONTROL ANGLE: ",ctrlAngle)
+    # print("ELAPSED TIME: ", elapsedTime)
 
-    cv.imshow("look! cool!", frame)
+    # Prepare frame with text space
+    frame_with_text = np.zeros((frame_height, actual_frame_width, 3), dtype=np.uint8)
+    frame_with_text[:actual_frame_height, :, :] = frame  # Only copy the video part, ensure dimensions match
+
+    # Generate info text
+    if ctrlAngle == None: ctrlAngle = -1
+    info_text = f"MEASURED ANGLE: {measAngle:.2f}\nREFERENCE ANGLE: {refAngle:.2f}\nCONTROL ANGLE: {ctrlAngle:.2f}\nELAPSED TIME: {int(time.time() - start)} sec"
+
+    # Display text on frame
+    y0, dy = actual_frame_height + 30, 30  # Start text 10 pixels below the original frame
+    for i, line in enumerate(info_text.split('\n')):
+        y = y0 + i * dy
+        cv.putText(frame_with_text, line, (10, y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+
+    cv.imshow("Output Frame", frame_with_text)
 
     if outputFlag: result.write(frame)
 

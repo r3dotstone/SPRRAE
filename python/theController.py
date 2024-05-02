@@ -5,7 +5,7 @@ class theControllerClass:
     def __init__(self):
         self.kp_omega = 0.01
         self.ki_omega = 0.001
-        self.dt = 0 #[milliseconds]
+        self.dt = 0 #[milliseconds] <------PROBLEM???
     
     def control(self, elapsedTime, refAngle, measuredAngle):
         omega = 0.1 #[deg/s]
@@ -17,7 +17,7 @@ class theControllerClass:
             ei_omega += e_omega * self.dt
             omega = 0.1 + self.kp_omega * e_omega + self.ki_omega * ei_omega #
             # print(omega)
-            time.sleep(0.3) #delay 1/3 second
+            time.sleep(0.3) #delay 1/3 second <------PROBLEM???
             return omega
 
     def ref(self, elapsedTime): #WORKING!!!!

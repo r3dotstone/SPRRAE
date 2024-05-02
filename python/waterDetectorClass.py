@@ -50,7 +50,7 @@ class waterDetector:
         transient_movement_flag = False
 
         # Resize and save a greyscale version of the image
-        frame = imutils.resize(frame, width = 200)
+        # frame = imutils.resize(frame, width = 200)
         # print("size: ",frame.shape)
         gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
