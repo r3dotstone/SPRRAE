@@ -6,9 +6,15 @@ import numpy as np
 import time
 import cv2 as cv
 # import gpiod
-from smbus import SMBus
+# from smbus import SMBus
 from theController import theControllerClass
 from waterDetectorClass import waterDetector
+
+# files
+input_file = "angleTest.avi"
+output_file = "angleTestOUT.mp4"
+outputFlag = False
+displayFlag = True
 
 # controller setup
 controller = theControllerClass()
@@ -20,9 +26,10 @@ wd = waterDetector()
 
 # i2c set up
 addr = 0x8 # bus address
-bus = SMBus(1) # indicates /dev/ic2-1
+# bus = SMBus(1) # indicates /dev/ic2-1
 
 firstLoop = True
+beginTime = time.time() # moved from inside loop
 
 cap = cv.VideoCapture(0)
 
@@ -31,19 +38,21 @@ while True:
 	
     #Time set ups
     timeNow = time.time()
-    beginTime = time.time()
     dt = np.floor(timeNow - timeOld)
     elapsedTime = np.floor(beginTime - start)
     timeOld = timeNow
     
     ret, frame = cap.read()
-    angle, frame, gray_blurred, frame_delta, mask = wd.loop(firstLoop,frame)
+    
+    measAngle, frame, gray_blurred, frame_delta, mask = wd.loop(firstLoop,frame)
 
-    # test = vision(firstLoop)
-    print("ANGLE: ",angle)
+    refAngle = controller.ref(elapsedTime)
 
-    # controller.control()
-    # controller.ref()
+    ctrlAngle = controller.control(elapsedTime, refAngle, measAngle)
+
+    print("MEASURED ANGLE: ",measAngle)
+    print("REFERENCE ANGLE: ",refAngle)
+    print("CONTROL ANGLE: ",ctrlAngle)
 
     cv.imshow("look! cool!", frame)
     ch = cv.waitKey(1)
