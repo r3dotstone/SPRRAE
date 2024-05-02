@@ -100,7 +100,7 @@ class waterDetector:
         # threshold mask
         _,mask = cv.threshold(erode,self.MASK_THRESH,255,cv.THRESH_BINARY)
 
-        angle = "noData"
+        angle = None # when no movement detect/no data
         if not(firstLoop) and transient_movement_flag: 
             _, _, xPred, yPred = maskPolyReg(mask)
             for i in np.linspace(0,len(xPred)-1,25,dtype=int):

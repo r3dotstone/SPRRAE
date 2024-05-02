@@ -2,8 +2,9 @@
 ### OUTPUT: demand for position to i2c
 
 #importing and setting up classes
-import numpy as np
 import time
+import os
+import numpy as np
 import cv2 as cv
 # import gpiod
 # from smbus import SMBus
@@ -12,7 +13,16 @@ from waterDetectorClass import waterDetector
 
 # files
 input_file = "angleTest.avi"
-output_file = "angleTestOUT.mp4"
+output_file = "angleTestIntegratedOUT.mp4"
+filePath = os.path.realpath(__file__)
+fileDir = os.path.dirname(filePath)
+inDir = fileDir.replace('python', 'inputVids')
+outDir = fileDir.replace('python', 'outputVids')
+input_path = os.path.join(inDir,input_file)
+output_path = os.path.join(outDir,output_file)
+
+# i/o flags
+inputFlag = True # True for webcam, False for input file
 outputFlag = False
 displayFlag = True
 
@@ -28,16 +38,29 @@ wd = waterDetector()
 addr = 0x8 # bus address
 # bus = SMBus(1) # indicates /dev/ic2-1
 
-firstLoop = True
-beginTime = time.time() # moved from inside loop
+# instantiate capture object
+if inputFlag: cap = cv.VideoCapture(0)
+else: cap = cv.VideoCapture(input_path)
 
-cap = cv.VideoCapture(0)
+if outputFlag:
+
+    frame_width = 2*200 #int(cap.get(3))
+    frame_height = 2*355 #int(cap.get(4))
+
+    size = (frame_width, frame_height)
+    result = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*"mp4v"), 30, size)
+
+# pre-loop assignments
+firstLoop = True
+angle = 0
+measAngleLast = 0
 
 while True:
     if firstLoop: firstLoop = False
 	
     #Time set ups
     timeNow = time.time()
+    beginTime = time.time() # moved from inside loop
     dt = np.floor(timeNow - timeOld)
     elapsedTime = np.floor(beginTime - start)
     timeOld = timeNow
@@ -45,6 +68,8 @@ while True:
     ret, frame = cap.read()
     
     measAngle, frame, gray_blurred, frame_delta, mask = wd.loop(firstLoop,frame)
+    if measAngle == None: measAngle = measAngleLast
+    measAngleLast = measAngle
 
     refAngle = controller.ref(elapsedTime)
 
@@ -53,8 +78,12 @@ while True:
     print("MEASURED ANGLE: ",measAngle)
     print("REFERENCE ANGLE: ",refAngle)
     print("CONTROL ANGLE: ",ctrlAngle)
+    print("ELAPSED TIME: ", elapsedTime)
 
     cv.imshow("look! cool!", frame)
+
+    if outputFlag: result.write(frame)
+
     ch = cv.waitKey(1)
     if ch & 0xFF == ord('q'):
         break
@@ -63,7 +92,8 @@ while True:
 cv.waitKey(0)
 cv.destroyAllWindows()
 cap.release()
-
+if outputFlag: result.release()
+print("All done!")
 
 
 
