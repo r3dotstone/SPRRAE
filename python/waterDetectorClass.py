@@ -12,7 +12,7 @@ class waterDetector:
 
 
         # movement lower threshold
-        self.MOV_THRESH = 4
+        self.MOV_THRESH = 2
 
         # number of dilation/erosion iterations
         self.DIL_ERODE_ITERS = 0

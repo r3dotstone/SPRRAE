@@ -8,7 +8,7 @@ import imutils
 import numpy as np
 import cv2 as cv
 # import gpiod
-# from smbus import SMBus
+from smbus import SMBus
 from theController import theControllerClass
 from waterDetectorClass import waterDetector
 
@@ -23,7 +23,7 @@ input_path = os.path.join(inDir,input_file)
 output_path = os.path.join(outDir,output_file)
 
 # i/o flags
-inputFlag = False # True for webcam, False for input file
+inputFlag = True # True for webcam, False for input file
 outputFlag = False
 displayFlag = True
 
@@ -37,7 +37,7 @@ wd = waterDetector()
 
 # i2c set up
 addr = 0x8 # bus address
-# bus = SMBus(1) # indicates /dev/ic2-1
+bus = SMBus(1) # indicates /dev/ic2-1
 
 # instantiate capture object
 if inputFlag: cap = cv.VideoCapture(0)
@@ -87,6 +87,7 @@ while True:
     refAngle = controller.ref(elapsedTime)
     #refAngle = measAngle
     ctrlAngle = controller.control(dt, elapsedTime, refAngle, measAngle)
+    # bus.write_byte(addr,int(ctrlAngle))
 
     # print("MEASURED ANGLE: ",measAngle)
     # print("REFERENCE ANGLE: ",refAngle)
@@ -109,8 +110,20 @@ while True:
         y = y0 + i * dy
         cv.putText(frame_with_text, line, (10, y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
+    # output
+    # Convert to color for splicing
+    # gray_blurred = cv.cvtColor(gray_blurred, cv.COLOR_GRAY2BGR)
+    # frame_delta = cv.cvtColor(frame_delta, cv.COLOR_GRAY2BGR)
+    # mask = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
 
-    cv.imshow("Output Frame", frame_with_text)
+    # show frame
+    # concatenate image Horizontally
+    winTop = np.concatenate((frame, gray_blurred), axis=1)
+    winBot = np.concatenate((frame_delta, mask), axis=1)
+    # concatenate image Vertically
+    winStack = np.concatenate((winTop, winBot), axis=0)
+
+    cv.imshow("Output Frame", winStack)
 
     if outputFlag: result.write(frame_with_text)
 
