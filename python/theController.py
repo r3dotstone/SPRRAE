@@ -3,24 +3,27 @@ import time
 
 class theControllerClass:
     def __init__(self):
-        self.kp_omega = 0.01
-        self.ki_omega = 0.001
-        self.dt = 0 #[milliseconds] <------PROBLEM???
+        self.kp_omega = 0.1
+        self.ki_omega = 0.01
+        #self.dt = 0 #[milliseconds] <------PROBLEM???
+        self.angle = 0
+        self.ei_omega = 0
+        self.omega = 0.1 #[deg/s]
 
-    def control(self, elapsedTime, refAngle, measuredAngle):
-        omega = 0.1 #[deg/s]
-        #measuredAngle = 0 #need to figure out how we're getting this from the video
-        ei_omega = 0
+    def control(self, dt, elapsedTime, refAngle, measuredAngle):
+        # #measuredAngle = 0 #need to figure out how we're getting this from the video
 
-        if (elapsedTime % 3) == 0:
-            e_omega = refAngle - measuredAngle #error between the angles
-            ei_omega += e_omega * self.dt
-            omega = 0.1 + self.kp_omega * e_omega + self.ki_omega * ei_omega #
-            # print(omega)
-            time.sleep(0.3) #delay 1/3 second <------PROBLEM???
-            dAngle = (360 * omega * self.dt) / (2 * np.pi)
-            angle += dAngle
-            return angle
+        if (elapsedTime % 1) == 0: self.angle = 0
+        print(elapsedTime % 1)
+        e_omega = refAngle - measuredAngle #error between the angles
+        self.ei_omega += e_omega * dt
+        omega = 0.1 + self.kp_omega * e_omega + self.ki_omega * self.ei_omega # 0.1 PROMBLEM???
+        # # print(omega)
+        # # time.sleep(0.3) #delay 1/3 second <------PROBLEM???
+        dAngle = omega * dt
+        self.angle += dAngle
+        #self.angle = omega
+        return self.angle
 
     def ref(self, elapsedTime): #WORKING!!!!
          #step function velocity vs time

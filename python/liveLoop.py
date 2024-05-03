@@ -71,9 +71,10 @@ while True:
     #Time set ups
     timeNow = time.time()
     beginTime = time.time() # moved from inside loop
-    dt = np.floor(timeNow - timeOld)
-    elapsedTime = np.floor(beginTime - start)
+    dt = timeNow - timeOld
+    elapsedTime = np.round(beginTime - start, decimals=1)
     timeOld = timeNow
+
     
     ret, frame = cap.read()
     frame = imutils.resize(frame, width = adjustedWidth)
@@ -84,8 +85,8 @@ while True:
     measAngleLast = measAngle
 
     refAngle = controller.ref(elapsedTime)
-
-    ctrlAngle = controller.control(elapsedTime, refAngle, measAngle)
+    #refAngle = measAngle
+    ctrlAngle = controller.control(dt, elapsedTime, refAngle, measAngle)
 
     # print("MEASURED ANGLE: ",measAngle)
     # print("REFERENCE ANGLE: ",refAngle)
