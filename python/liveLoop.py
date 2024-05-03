@@ -4,6 +4,7 @@
 #importing and setting up classes
 import time
 import os
+import imutils
 import numpy as np
 import cv2 as cv
 # import gpiod
@@ -22,7 +23,7 @@ input_path = os.path.join(inDir,input_file)
 output_path = os.path.join(outDir,output_file)
 
 # i/o flags
-inputFlag = True # True for webcam, False for input file
+inputFlag = False # True for webcam, False for input file
 outputFlag = False
 displayFlag = True
 
@@ -42,14 +43,20 @@ addr = 0x8 # bus address
 if inputFlag: cap = cv.VideoCapture(0)
 else: cap = cv.VideoCapture(input_path)
 ret, test_frame = cap.read()
+
 if not ret:
     print("Failed to get frame from camera.")
     cap.release()
     exit()
 
+# sort out frame size for text and write out
+adjustedWidth = 400
+test_frame = imutils.resize(test_frame, width = adjustedWidth)
+
 actual_frame_height, actual_frame_width = test_frame.shape[:2]
 frame_height = actual_frame_height + 150  # Adding space for text
-size = (actual_frame_width, actual_frame_height)
+size = (actual_frame_width, frame_height)
+# print(size)
 
 if outputFlag: result = cv.VideoWriter(output_path, cv.VideoWriter_fourcc(*"mp4v"), 30, size)
 
@@ -69,8 +76,9 @@ while True:
     timeOld = timeNow
     
     ret, frame = cap.read()
+    frame = imutils.resize(frame, width = adjustedWidth)
+    # print(frame.shape[:2])
     
-
     measAngle, frame, gray_blurred, frame_delta, mask = wd.loop(firstLoop,frame)
     if measAngle == None: measAngle = measAngleLast
     measAngleLast = measAngle
@@ -87,6 +95,8 @@ while True:
     # Prepare frame with text space
     frame_with_text = np.zeros((frame_height, actual_frame_width, 3), dtype=np.uint8)
     frame_with_text[:actual_frame_height, :, :] = frame  # Only copy the video part, ensure dimensions match
+    # print(frame_with_text.shape[:2])
+
 
     # Generate info text
     if ctrlAngle == None: ctrlAngle = -1
@@ -98,9 +108,10 @@ while True:
         y = y0 + i * dy
         cv.putText(frame_with_text, line, (10, y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
+
     cv.imshow("Output Frame", frame_with_text)
 
-    if outputFlag: result.write(frame)
+    if outputFlag: result.write(frame_with_text)
 
     ch = cv.waitKey(1)
     if ch & 0xFF == ord('q'):
