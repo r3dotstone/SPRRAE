@@ -11,6 +11,7 @@ import cv2 as cv
 from smbus import SMBus
 from theController import theControllerClass
 from waterDetectorClass import waterDetector
+from regressionFromMask import maskPolyReg
 
 # files
 input_file = "integrationTest.avi"
@@ -66,7 +67,6 @@ angle = 0
 measAngleLast = 0
 
 while True:
-    if firstLoop: firstLoop = False
 	
     #Time set ups
     timeNow = time.time()
@@ -80,7 +80,25 @@ while True:
     frame = imutils.resize(frame, width = adjustedWidth)
     # print(frame.shape[:2])
     
-    measAngle, frame, gray_blurred, frame_delta, mask = wd.loop(firstLoop,frame)
+    measAngle, frame, gray_blurred, frame_delta, mask, transient_movement_flag = wd.loop(firstLoop,frame)
+
+    print("MOVE? ", transient_movement_flag)
+
+    # if not(firstLoop) and transient_movement_flag: 
+    #         pointsX, pointsY, xPred, yPred = maskPolyReg(mask)
+    #         print(pointsX,pointsY)
+    #         for i in np.linspace(0,len(xPred)-1,25,dtype=int):
+    #             # j = 20 % i
+    #             circleCoord = (xPred[i],yPred[i])
+    #             # if j == 0: 
+    #             frame = cv.circle(frame, circleCoord, radius=2, color=(0, 0, 255), thickness=-1)
+    #         lineStart = (xPred[0],yPred[0])
+    #         lineEnd = (xPred[-1],yPred[-1])
+    #         color = (0, 255, 0)
+    #         thickness = 3
+    #         frame = cv.line(frame, lineStart, lineEnd, color, thickness)
+    #         angle = np.rad2deg(np.arctan((lineEnd[1]-lineStart[1])/(lineEnd[0]-lineStart[0])))
+
     if measAngle == None: measAngle = measAngleLast
     measAngleLast = measAngle
 
@@ -110,6 +128,8 @@ while True:
     # concatenate image Vertically
 
     cv.imshow("Output Frame", winTop)
+
+    if firstLoop: firstLoop = False # CHANGE
 
     if outputFlag: result.write(mask)
 

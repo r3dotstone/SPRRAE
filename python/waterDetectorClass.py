@@ -15,13 +15,13 @@ class waterDetector:
         self.MOV_THRESH = 2
 
         # number of dilation/erosion iterations
-        self.DIL_ERODE_ITERS = 0
+        self.DIL_ERODE_ITERS = 3 # CHANGE
 
         # mask lower threshold (change MOV_THRESH instead)
         self.MASK_THRESH = 0
 
         # Gaussian blue kernal size
-        self.BLUR_SIZE = 7
+        self.BLUR_SIZE = 7 # CHANGE
 
         # Number of frames to pass before changing the frame to compare the current
         # frame against
@@ -29,11 +29,11 @@ class waterDetector:
 
         # Minimum boxed area for a detected motion to count as actual motion
         # Use to filter out noise or small objects
-        self.MIN_SIZE_FOR_MOVEMENT = 1000
+        self.MIN_SIZE_FOR_MOVEMENT = 100 # CHANGE
 
         # Minimum length of time where no motion is detected it should take
         #(in program cycles) for the program to declare that there is no movement
-        self.MOVEMENT_DETECTED_PERSISTENCE = 100
+        # self.MOVEMENT_DETECTED_PERSISTENCE = 100
         
         # Init frame variables
         self.first_frame = None
@@ -95,7 +95,7 @@ class waterDetector:
         # movement timer.
         if transient_movement_flag == True:
             self.movement_persistent_flag = True
-            self.movement_persistent_counter = self.MOVEMENT_DETECTED_PERSISTENCE
+            # self.movement_persistent_counter = self.MOVEMENT_DETECTED_PERSISTENCE
 
         # threshold mask
         _,mask = cv.threshold(erode,self.MASK_THRESH,255,cv.THRESH_BINARY)
@@ -121,4 +121,4 @@ class waterDetector:
         frame_delta = cv.cvtColor(frame_delta, cv.COLOR_GRAY2BGR)
         mask = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
 
-        return angle, frame, gray_blurred, frame_delta, mask
+        return angle, frame, gray_blurred, frame_delta, mask, transient_movement_flag

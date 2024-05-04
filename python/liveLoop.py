@@ -80,7 +80,7 @@ while True:
     frame = imutils.resize(frame, width = adjustedWidth)
     # print(frame.shape[:2])
     
-    measAngle, frame, gray_blurred, frame_delta, mask = wd.loop(firstLoop,frame)
+    measAngle, frame, gray_blurred, frame_delta, mask, transient_movement_flag = wd.loop(firstLoop,frame)
     if measAngle == None: measAngle = measAngleLast
     measAngleLast = measAngle
 
