@@ -1,4 +1,4 @@
-### INPUT: position of stream from vision 
+### INPUT: position of stream from vision
 ### OUTPUT: demand for position to i2c
 
 #importing and setting up classes
@@ -73,7 +73,7 @@ measAngleLast = 0
 
 while True:
     if firstLoop: firstLoop = False
-	
+
     #Time set ups
     timeNow = time.time()
     beginTime = time.time() # moved from inside loop
@@ -81,12 +81,12 @@ while True:
     elapsedTime = np.round(beginTime - start, decimals=1)
     timeOld = timeNow
 
-    
+
     ret, frame = cap.read()
     frame = imutils.resize(frame, width = adjustedWidth)
     # print(frame.shape[:2])
-    
-    measAngle, frame, gray_blurred, frame_delta, mask, transient_movement_flag = wd.loop(firstLoop,frame)
+
+    measAngle, frame, gray, gray_blurred, frame_delta, mask, frame_annotated, transient_movement_flag = wd.loop(firstLoop,frame)
     if measAngle == None: measAngle = measAngleLast
     measAngleLast = measAngle
 
@@ -118,15 +118,19 @@ while True:
         y = y0 + i * dy
         cv.putText(frame_with_text, line, (10, y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
+    # annotate frame_annotated
+    frame_annotated = cv.line(frame_annotated, fieldStart, horzEnd, color=(255,0,0), thickness=3) # horizontal edge
+    frame_annotated = cv.line(frame_annotated, fieldStart, vertEnd, color=(0,255,0), thickness=3) # vertical edge
+
     # output
 
     # concatenate image Horizontally
-    winTop = np.concatenate((frame, gray_blurred), axis=1)
-    winBot = np.concatenate((frame_delta, mask), axis=1)
+    winTop = np.concatenate((frame, gray, gray_blurred), axis=1)
+    winBot = np.concatenate((frame_delta, mask, frame_annotated), axis=1)
     # concatenate image Vertically
     winStack = np.concatenate((winTop, winBot), axis=0)
 
-    cv.imshow("Output Frame", frame_with_text)
+    cv.imshow("Output Frame", frame_annotated) # frame_with text for useful output
 
     if outputFlag: result.write(frame_with_text)
 
@@ -158,24 +162,24 @@ print("All done!")
 #  https://dronebotworkshop.com
 #  https://dronebotworkshop.com/i2c-arduino-raspberry-pi/
 #  https://roboticsbackend.com/raspberry-pi-master-arduino-slave-i2c-communication-with-wiringpi/
-  
-  
+
+
 # calFlagPin = 17  # GPIO 17, physical pin 11
 # chip = gpiod.Chip('gpiochip4')
 # calFlagLine = chip.get_line(calFlagPin)
 # calFlagLine.request(consumer="Arduino", type=gpiod.LINE_REQ_DIR_OUT)
 # calFlagLine.set_value(0)
-  
+
     # #i2c modes
     # mode = input("What mode would you like to run?\n[cal] [step] [hold] [per] [abs]\n>>>>    ")
-  
+
     # if mode == "cal":
     #     print("Entering calibration mode")
     #     calFlagLine.set_value(1)
     #     calLoop = True
     #     while calLoop:
     #         calIn = input("Enter relative angle or [exit]: ")
-    #         if calIn == "exit": 
+    #         if calIn == "exit":
     #             calLoop == False
     #             break
     #         else: print(calIn)
@@ -188,7 +192,7 @@ print("All done!")
     #     absLoop = True
     #     while absLoop:
     #         absIn = input("Enter absolute angle in degrees or [exit]: ")
-    #         if absIn == "exit": 
+    #         if absIn == "exit":
     #             absLoop = False
     #             break
     #         else: print(int(absIn))
