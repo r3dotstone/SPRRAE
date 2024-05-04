@@ -14,7 +14,6 @@ class theControllerClass:
         # #measuredAngle = 0 #need to figure out how we're getting this from the video
 
         if (elapsedTime % 1) == 0: self.angle = 0
-        print(elapsedTime % 1)
         e_omega = refAngle - measuredAngle #error between the angles
         self.ei_omega += e_omega * dt
         omega = 0.1 + self.kp_omega * e_omega + self.ki_omega * self.ei_omega # 0.1 PROMBLEM???
