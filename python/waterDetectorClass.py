@@ -101,6 +101,7 @@ class waterDetector:
         _,mask = cv.threshold(erode,self.MASK_THRESH,255,cv.THRESH_BINARY)
 
         angle = None # when no movement detect/no data
+        frame_annotated = frame
         if not(firstLoop) and transient_movement_flag:
             _, _, xPred, yPred = maskPolyReg(mask)
             for i in np.linspace(0,len(xPred)-1,25,dtype=int):
@@ -117,8 +118,10 @@ class waterDetector:
             # cv.putText(frame, str(angle), (10,35), self.font, 0.75, (255,255,255), 2, cv.LINE_AA)
 
         # Convert to color for splicing
+        gray = cv.cvtColor(gray, cv.COLOR_GRAY2BGR)
         gray_blurred = cv.cvtColor(gray_blurred, cv.COLOR_GRAY2BGR)
         frame_delta = cv.cvtColor(frame_delta, cv.COLOR_GRAY2BGR)
-        mask = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
+        erode = cv.cvtColor(erode, cv.COLOR_GRAY2BGR)
+        thresh = cv.cvtColor(thresh, cv.COLOR_GRAY2BGR)
 
-        return angle, frame, gray, gray_blurred, frame_delta, mask, frame_annotated, transient_movement_flag
+        return angle, frame, gray, gray_blurred, frame_delta, erode, thresh, transient_movement_flag

@@ -86,7 +86,7 @@ while True:
     frame = imutils.resize(frame, width = adjustedWidth)
     # print(frame.shape[:2])
 
-    measAngle, frame, gray, gray_blurred, frame_delta, mask, frame_annotated, transient_movement_flag = wd.loop(firstLoop,frame)
+    measAngle, frame, gray, gray_blurred, frame_delta, erode, mask, transient_movement_flag = wd.loop(firstLoop,frame)
     if measAngle == None: measAngle = measAngleLast
     measAngleLast = measAngle
 
@@ -119,18 +119,18 @@ while True:
         cv.putText(frame_with_text, line, (10, y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
     # annotate frame_annotated
-    frame_annotated = cv.line(frame_annotated, fieldStart, horzEnd, color=(255,0,0), thickness=3) # horizontal edge
-    frame_annotated = cv.line(frame_annotated, fieldStart, vertEnd, color=(0,255,0), thickness=3) # vertical edge
+    frame = cv.line(frame, fieldStart, horzEnd, color=(255,0,0), thickness=3) # horizontal edge
+    frame = cv.line(frame, fieldStart, vertEnd, color=(0,255,0), thickness=3) # vertical edge
 
     # output
 
     # concatenate image Horizontally
     winTop = np.concatenate((frame, gray, gray_blurred), axis=1)
-    winBot = np.concatenate((frame_delta, mask, frame_annotated), axis=1)
+    winBot = np.concatenate((frame_delta, mask, erode), axis=1)
     # concatenate image Vertically
     winStack = np.concatenate((winTop, winBot), axis=0)
 
-    cv.imshow("Output Frame", frame_annotated) # frame_with text for useful output
+    cv.imshow("Output Frame", winStack) # frame_with text for useful output
 
     if outputFlag: result.write(frame_with_text)
 
