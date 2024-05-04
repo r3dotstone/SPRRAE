@@ -14,7 +14,7 @@ from waterDetectorClass import waterDetector
 
 # files
 input_file = "angleTest.avi"
-output_file = "integrationTest.mp4"
+output_file = "test.mp4"
 filePath = os.path.realpath(__file__)
 fileDir = os.path.dirname(filePath)
 inDir = fileDir.replace('python', 'inputVids')
@@ -24,7 +24,7 @@ output_path = os.path.join(outDir,output_file)
 
 # i/o flags
 inputFlag = True # True for webcam, False for input file
-outputFlag = True
+outputFlag = False
 displayFlag = True
 
 # controller setup
@@ -123,9 +123,9 @@ while True:
     # concatenate image Vertically
     winStack = np.concatenate((winTop, winBot), axis=0)
 
-    cv.imshow("Output Frame", winStack)
+    cv.imshow("Output Frame", frame_with_text)
 
-    if outputFlag: result.write(mask)
+    if outputFlag: result.write(frame_with_text)
 
     ch = cv.waitKey(1)
     if ch & 0xFF == ord('q'):
