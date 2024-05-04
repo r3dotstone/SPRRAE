@@ -13,8 +13,8 @@ from theController import theControllerClass
 from waterDetectorClass import waterDetector
 
 # files
-input_file = "angleTest.avi"
-output_file = "integrationTest.mp4"
+input_file = "integrationTest.avi"
+output_file = "integrationTestOUT.mp4"
 filePath = os.path.realpath(__file__)
 fileDir = os.path.dirname(filePath)
 inDir = fileDir.replace('python', 'inputVids')
@@ -23,8 +23,8 @@ input_path = os.path.join(inDir,input_file)
 output_path = os.path.join(outDir,output_file)
 
 # i/o flags
-inputFlag = True # True for webcam, False for input file
-outputFlag = True
+inputFlag = False # True for webcam, False for input file
+outputFlag = False
 displayFlag = True
 
 # controller setup
@@ -54,7 +54,7 @@ adjustedWidth = 400
 test_frame = imutils.resize(test_frame, width = adjustedWidth)
 
 actual_frame_height, actual_frame_width = test_frame.shape[:2]
-frame_height = actual_frame_height + 150  # Adding space for text
+frame_height = actual_frame_height
 size = (actual_frame_width, frame_height)
 # print(size)
 
@@ -104,26 +104,12 @@ while True:
     if ctrlAngle == None: ctrlAngle = -1
     info_text = f"MEASURED ANGLE: {measAngle:.2f}\nREFERENCE ANGLE: {refAngle:.2f}\nCONTROL ANGLE: {ctrlAngle:.2f}\nELAPSED TIME: {int(time.time() - start)} sec"
 
-    # Display text on frame
-    y0, dy = actual_frame_height + 30, 30  # Start text 10 pixels below the original frame
-    for i, line in enumerate(info_text.split('\n')):
-        y = y0 + i * dy
-        cv.putText(frame_with_text, line, (10, y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-
-    # output
-    # Convert to color for splicing
-    # gray_blurred = cv.cvtColor(gray_blurred, cv.COLOR_GRAY2BGR)
-    # frame_delta = cv.cvtColor(frame_delta, cv.COLOR_GRAY2BGR)
-    # mask = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
-
     # show frame
     # concatenate image Horizontally
-    winTop = np.concatenate((frame, gray_blurred), axis=1)
-    winBot = np.concatenate((frame_delta, mask), axis=1)
+    winTop = np.concatenate((frame, mask), axis=1)
     # concatenate image Vertically
-    winStack = np.concatenate((winTop, winBot), axis=0)
 
-    cv.imshow("Output Frame", winStack)
+    cv.imshow("Output Frame", winTop)
 
     if outputFlag: result.write(mask)
 
