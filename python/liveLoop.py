@@ -9,6 +9,7 @@ import numpy as np
 import cv2 as cv
 # import gpiod
 from smbus import SMBus
+from angleXform import AngleXform
 from theController import theControllerClass
 from waterDetectorClass import waterDetector
 
@@ -26,6 +27,11 @@ output_path = os.path.join(outDir,output_file)
 inputFlag = True # True for webcam, False for input file
 outputFlag = False
 displayFlag = True
+
+# environment setup
+fieldStart = (250,220)
+horzEnd = (100,130)
+vertEnd = (300,100)
 
 # controller setup
 controller = theControllerClass()
@@ -84,6 +90,8 @@ while True:
     if measAngle == None: measAngle = measAngleLast
     measAngleLast = measAngle
 
+    _, _, measAngle = AngleXform(measAngle,fieldStart,horzEnd,fieldStart,vertEnd)
+
     refAngle = controller.ref(elapsedTime)
     #refAngle = measAngle
     ctrlAngle = controller.control(dt, elapsedTime, refAngle, measAngle)
@@ -111,12 +119,7 @@ while True:
         cv.putText(frame_with_text, line, (10, y), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
     # output
-    # Convert to color for splicing
-    # gray_blurred = cv.cvtColor(gray_blurred, cv.COLOR_GRAY2BGR)
-    # frame_delta = cv.cvtColor(frame_delta, cv.COLOR_GRAY2BGR)
-    # mask = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
 
-    # show frame
     # concatenate image Horizontally
     winTop = np.concatenate((frame, gray_blurred), axis=1)
     winBot = np.concatenate((frame_delta, mask), axis=1)
