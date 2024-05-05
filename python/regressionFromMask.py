@@ -42,7 +42,7 @@ def maskPolyReg(mask):
 
     # Fit a second-degree polynomial
     coefs = np.polynomial.polynomial.Polynomial.fit(x, y, 2).convert().coef
-    print("coefs: ", coefs)
+    # print("coefs: ", coefs)
     
     # Prediction over the range of x
     xPred = np.linspace(np.min(x), np.max(x), 100)  # Using 100 points for prediction

@@ -7,21 +7,21 @@ import os
 from regressionFromMask import maskPolyReg
 
 class waterDetector:
-    
+
     def __init__(self):
 
 
         # movement lower threshold
-        self.MOV_THRESH = 4
+        self.MOV_THRESH = 2
 
         # number of dilation/erosion iterations
-        self.DIL_ERODE_ITERS = 0
+        self.DIL_ERODE_ITERS = 3 # CHANGE
 
         # mask lower threshold (change MOV_THRESH instead)
         self.MASK_THRESH = 0
 
         # Gaussian blue kernal size
-        self.BLUR_SIZE = 7
+        self.BLUR_SIZE = 7 # CHANGE
 
         # Number of frames to pass before changing the frame to compare the current
         # frame against
@@ -29,12 +29,12 @@ class waterDetector:
 
         # Minimum boxed area for a detected motion to count as actual motion
         # Use to filter out noise or small objects
-        self.MIN_SIZE_FOR_MOVEMENT = 1000
+        self.MIN_SIZE_FOR_MOVEMENT = 100 # CHANGE
 
         # Minimum length of time where no motion is detected it should take
         #(in program cycles) for the program to declare that there is no movement
-        self.MOVEMENT_DETECTED_PERSISTENCE = 100
-        
+        # self.MOVEMENT_DETECTED_PERSISTENCE = 100
+
         # Init frame variables
         self.first_frame = None
         self.next_frame = None
@@ -50,7 +50,7 @@ class waterDetector:
         transient_movement_flag = False
 
         # Resize and save a greyscale version of the image
-        frame = imutils.resize(frame, width = 200)
+        # frame = imutils.resize(frame, width = 200)
         # print("size: ",frame.shape)
         gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
@@ -95,30 +95,33 @@ class waterDetector:
         # movement timer.
         if transient_movement_flag == True:
             self.movement_persistent_flag = True
-            self.movement_persistent_counter = self.MOVEMENT_DETECTED_PERSISTENCE
+            # self.movement_persistent_counter = self.MOVEMENT_DETECTED_PERSISTENCE
 
         # threshold mask
         _,mask = cv.threshold(erode,self.MASK_THRESH,255,cv.THRESH_BINARY)
 
-        angle = "noData"
-        if not(firstLoop) and transient_movement_flag: 
+        angle = None # when no movement detect/no data
+        frame_annotated = frame
+        if not(firstLoop) and transient_movement_flag:
             _, _, xPred, yPred = maskPolyReg(mask)
             for i in np.linspace(0,len(xPred)-1,25,dtype=int):
                 # j = 20 % i
                 circleCoord = (xPred[i],yPred[i])
-                # if j == 0: 
-                frame = cv.circle(frame, circleCoord, radius=2, color=(0, 0, 255), thickness=-1)
+                # if j == 0:
+                frame_annotated = cv.circle(frame, circleCoord, radius=2, color=(127, 0, 127), thickness=-1)
             lineStart = (xPred[0],yPred[0])
             lineEnd = (xPred[-1],yPred[-1])
-            color = (0, 255, 0)
+            color = (0, 0, 255)
             thickness = 3
-            frame = cv.line(frame, lineStart, lineEnd, color, thickness)
+            frame_annotated = cv.line(frame_annotated, lineStart, lineEnd, color, thickness)
             angle = np.rad2deg(np.arctan((lineEnd[1]-lineStart[1])/(lineEnd[0]-lineStart[0])))
             # cv.putText(frame, str(angle), (10,35), self.font, 0.75, (255,255,255), 2, cv.LINE_AA)
 
         # Convert to color for splicing
+        gray = cv.cvtColor(gray, cv.COLOR_GRAY2BGR)
         gray_blurred = cv.cvtColor(gray_blurred, cv.COLOR_GRAY2BGR)
         frame_delta = cv.cvtColor(frame_delta, cv.COLOR_GRAY2BGR)
-        mask = cv.cvtColor(mask, cv.COLOR_GRAY2BGR)
+        erode = cv.cvtColor(erode, cv.COLOR_GRAY2BGR)
+        thresh = cv.cvtColor(thresh, cv.COLOR_GRAY2BGR)
 
-        return angle, frame, gray_blurred, frame_delta, mask
+        return angle, frame, gray, gray_blurred, frame_delta, erode, thresh, transient_movement_flag
