@@ -71,6 +71,11 @@ firstLoop = True
 angle = 0
 measAngleLast = 0
 
+calInput = input("Enter a Calibration Angle or [exit]: ")
+if calInput=="exit": pass
+else: bus.write_byte(addr,int(calInput))
+
+
 while True:
     if firstLoop: firstLoop = False
 
