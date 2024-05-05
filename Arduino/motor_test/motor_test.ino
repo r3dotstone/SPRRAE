@@ -43,7 +43,7 @@ void receiveEvent(int howMany) {
 }
 
 void loop() {
-  cal = digitalRead(calpin);
+  cal = true;
   counts = encode1.getCounts();
   pos = 2 * PI * counts / 12000;
   goal_new = 2 * PI * out / 360;
