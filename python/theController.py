@@ -4,7 +4,7 @@ import time
 class theControllerClass:
     def __init__(self):
         self.kp_omega = 0.1
-        self.ki_omega = 0.01
+        self.ki_omega = 0.1
         #self.dt = 0 #[milliseconds] <------PROBLEM???
         self.angle = 0
         self.ei_omega = 0

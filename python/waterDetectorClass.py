@@ -21,7 +21,7 @@ class waterDetector:
         self.MASK_THRESH = 0
 
         # Gaussian blue kernal size
-        self.BLUR_SIZE = 7 # CHANGE
+        self.BLUR_SIZE = 11 # CHANGED from 7 to 9 to 11
 
         # Number of frames to pass before changing the frame to compare the current
         # frame against
@@ -29,7 +29,7 @@ class waterDetector:
 
         # Minimum boxed area for a detected motion to count as actual motion
         # Use to filter out noise or small objects
-        self.MIN_SIZE_FOR_MOVEMENT = 100 # CHANGE
+        self.MIN_SIZE_FOR_MOVEMENT = 200 # CHANGED from 100 to 200
 
         # Minimum length of time where no motion is detected it should take
         #(in program cycles) for the program to declare that there is no movement

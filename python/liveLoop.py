@@ -28,15 +28,11 @@ inputFlag = True # True for webcam, False for input file
 outputFlag = False
 displayFlag = True
 
-# environment setup
-fieldStart = (250,220)
-horzEnd = (100,130)
-vertEnd = (300,100)
 
-# controller setup
-controller = theControllerClass()
-start = time.time()
-timeOld = time.time()
+# environment setup
+fieldStart = (380,300)
+horzEnd = (94,194)
+vertEnd = (381,130)
 
 # water detector setup
 wd = waterDetector()
@@ -44,6 +40,14 @@ wd = waterDetector()
 # i2c set up
 addr = 0x8 # bus address
 bus = SMBus(1) # indicates /dev/ic2-1
+
+# calibration logic
+calInput = input("Enter a Calibration Angle or [start]: ")
+calFlag = True
+while calFlag == True:
+    if calInput=="start": calFlag = False
+    else: bus.write_byte(addr,int(calInput))
+    if calFlag == True: calInput = input("Enter a Calibration Angle or [start]: ")
 
 # instantiate capture object
 if inputFlag: cap = cv.VideoCapture(0)
@@ -71,9 +75,10 @@ firstLoop = True
 angle = 0
 measAngleLast = 0
 
-calInput = input("Enter a Calibration Angle or [exit]: ")
-if calInput=="exit": pass
-else: bus.write_byte(addr,int(calInput))
+# controller setup
+controller = theControllerClass()
+start = time.time()
+timeOld = time.time()
 
 
 while True:
@@ -97,10 +102,10 @@ while True:
 
     _, _, measAngle = AngleXform(measAngle,fieldStart,horzEnd,fieldStart,vertEnd)
 
-    refAngle = controller.ref(elapsedTime)
-    #refAngle = measAngle
+    # refAngle = controller.ref(elapsedTime)
+    refAngle = 45
     ctrlAngle = controller.control(dt, elapsedTime, refAngle, measAngle)
-    # bus.write_byte(addr,int(ctrlAngle))
+    bus.write_byte(addr,int(ctrlAngle))
 
     # print("MEASURED ANGLE: ",measAngle)
     # print("REFERENCE ANGLE: ",refAngle)
@@ -133,9 +138,11 @@ while True:
     winTop = np.concatenate((frame, gray, gray_blurred), axis=1)
     winBot = np.concatenate((frame_delta, mask, erode), axis=1)
     # concatenate image Vertically
-    winStack = np.concatenate((winTop, winBot), axis=0)
+    winStack = np.concatenate((winTop, winBot), axis=0) 
 
-    cv.imshow("Output Frame", winStack) # frame_with text for useful output
+    cv.imshow("Output Frame", frame_with_text) # measurements
+    # cv.imshow("Output Frame", winStack) # 6-pane
+
 
     if outputFlag: result.write(frame_with_text)
 
